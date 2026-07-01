@@ -36,7 +36,7 @@
                 const text = charArray[Math.floor(Math.random() * charArray.length)];
                 const isHead = Math.random() > 0.985;
 
-                ctx.fillStyle = isHead ? '#ffffff' : (Math.random() > 0.75 ? '#8effa4' : '#00ff41');
+                ctx.fillStyle = isHead ? '#ffffff' : (Math.random() > 0.75 ? '#1013ba' : '#1f38dd');
                 ctx.fillText(text, x, y);
 
                 if (y > height * 1.2 && Math.random() > 0.98) {

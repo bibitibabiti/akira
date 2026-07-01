@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Personal Website</title>
+    <title>Jormungandr</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -22,6 +22,7 @@
                 <button class="terminal-link typed-text delay" id="opinions-toggle" type="button">&gt;&gt; opinions</button>
             </div>
             <div class="blog-post" id="opinions-panel">
+                <button class="return-link" id="return-home" type="button">&lt;&lt; return</button>
                 <p class="blog-meta">// loading posts...</p>
             </div>
         </div>
@@ -32,6 +33,7 @@
     <script>
         const toggle = document.getElementById('opinions-toggle');
         const panel = document.getElementById('opinions-panel');
+        const returnHome = document.getElementById('return-home');
 
         function parsePost(text, fallbackTitle) {
             const raw = text.trim();
@@ -59,16 +61,26 @@
                 return;
             }
 
-            panel.innerHTML = posts.map((post, index) => {
-                const body = post.paragraphs.map((paragraph) => `<p>${paragraph.replace(/\n/g, '<br>')}</p>`).join('');
-                return `
-                    <article class="post-entry">
-                        <p class="blog-meta">// post ${index + 1}</p>
-                        <h2>${post.title}</h2>
-                        <div class="post-body">${body}</div>
-                    </article>
-                `;
-            }).join('');
+            panel.innerHTML = `
+                <button class="return-link" id="return-home-inline" type="button">&lt;&lt; back to title</button>
+                ${posts.map((post, index) => {
+                    const body = post.paragraphs.map((paragraph) => `<p>${paragraph.replace(/\n/g, '<br>')}</p>`).join('');
+                    return `
+                        <article class="post-entry">
+                            <p class="blog-meta">// post ${index + 1}</p>
+                            <h2>${post.title}</h2>
+                            <div class="post-body">${body}</div>
+                        </article>
+                    `;
+                }).join('')}
+            `;
+
+            const inlineReturn = document.getElementById('return-home-inline');
+            if (inlineReturn) {
+                inlineReturn.addEventListener('click', () => {
+                    setPostsView(false);
+                });
+            }
         }
 
         async function loadPosts() {
@@ -102,9 +114,20 @@
 
         loadPosts();
 
-        toggle.addEventListener('click', () => {
-            const isOpen = panel.classList.toggle('active');
+        function setPostsView(isOpen) {
+            panel.classList.toggle('active', isOpen);
+            document.body.classList.toggle('posts-open', isOpen);
             toggle.textContent = isOpen ? '>> opinions: expanded' : '>> opinions';
+            returnHome.style.display = isOpen ? 'inline-flex' : 'none';
+        }
+
+        toggle.addEventListener('click', () => {
+            const isOpen = !panel.classList.contains('active');
+            setPostsView(isOpen);
+        });
+
+        returnHome.addEventListener('click', () => {
+            setPostsView(false);
         });
 
     </script>
