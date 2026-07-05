@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Personal Website</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Background Canvas -->
+    <canvas id="matrix-canvas"></canvas>
+
+    <!-- Your Website Content Goes Here -->
+
+    <div class="content-container">
+        <div class="terminal-shell">
+            <h1 class="glow-heading">Jormungandr</h1>
+            <div class="subtitle">
+                <span class="typed-text">&gt;&gt; serpent node engaged</span>
+                <span class="typed-text delay">&gt;&gt; data stream: active</span>
+                <button class="terminal-link typed-text delay" id="opinions-toggle" type="button">&gt;&gt; opinions</button>
+            </div>
+            <div class="blog-post" id="opinions-panel">
+                <p class="blog-meta">// loading posts...</p>
+            </div>
+        </div>
+    </div>
+    <!-- Matrix Animation Script -->
+    <script src="matrix.js"></script>
+    <script>
+        const toggle = document.getElementById('opinions-toggle');
+        const panel = document.getElementById('opinions-panel');
+
+        function parsePost(text, fallbackTitle) {
+            const raw = text.trim();
+            const lines = raw.replace(/\r\n/g, '\n').split('\n');
+            let title = fallbackTitle || '';
+            let contentLines = lines;
+
+            if (contentLines[0] && contentLines[0].startsWith('# ')) {
+                title = contentLines[0].replace(/^#\s*/, '').trim();
+                contentLines = contentLines.slice(1);
+            }
+
+            const paragraphs = contentLines
+                .join('\n')
+                .split(/\n\s*\n/)
+                .map((block) => block.trim())
+                .filter(Boolean);
+
+            return { title, paragraphs };
+        }
+
+        function renderPosts(posts) {
+            if (!posts.length) {
+                panel.innerHTML = '<p class="blog-meta">// no posts linked yet</p>';
+                return;
+            }
+
+            panel.innerHTML = posts.map((post, index) => {
+                const body = post.paragraphs.map((paragraph) => `<p>${paragraph.replace(/\n/g, '<br>')}</p>`).join('');
+                return `
+                    <article class="post-entry">
+                        <p class="blog-meta">// post ${index + 1}</p>
+                        <h2>${post.title}</h2>
+                        <div class="post-body">${body}</div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        async function loadPosts() {
+            try {
+                const response = await fetch('posts/');
+                const text = await response.text();
+                const matches = [...text.matchAll(/href="([^"]+\.txt)"/g)];
+                const paths = matches.map((match) => match[1]).filter((path) => path !== 'posts/');
+                const posts = [];
+
+                for (const path of paths) {
+                    const fileResponse = await fetch(path);
+                    if (!fileResponse.ok) continue;
+                    const fileText = await fileResponse.text();
+                    posts.push(parsePost(fileText, path.split('/').pop().replace(/\.txt$/, '')));
+                }
+
+                renderPosts(posts);
+            } catch (error) {
+                panel.innerHTML = '<p class="blog-meta">// no posts found</p>';
+            }
+        }
+
+        loadPosts();
+
+        toggle.addEventListener('click', () => {
+            const isOpen = panel.classList.toggle('active');
+            toggle.textContent = isOpen ? '>> opinions: expanded' : '>> opinions';
+        });
+
+    </script>
+</body>
+</html>
