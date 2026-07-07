@@ -51,7 +51,8 @@
 
 
 
-        const toggle = document.getElementById('nav-label');;
+        const POST_DIR = 'posts/';
+        const toggle = document.getElementById('nav-label');
         const panel = document.getElementById('opinions-panel');
         const returnHome = document.getElementById('return-home');
 
@@ -107,10 +108,13 @@
             const posts = [];
 
             try {
-                const response = await fetch('posts/');
+                const response = await fetch(POST_DIR);
                 const text = await response.text();
                 const matches = [...text.matchAll(/href="([^"]+\.txt)"/g)];
-                const paths = matches.map((match) => match[1]).filter((path) => path !== 'posts/');
+                const paths = matches
+                    .map((match) => match[1])
+                    .filter((path) => path && path !== 'posts/')
+                    .map((path) => (path.startsWith(POST_DIR) ? path : POST_DIR + path));
 
                 for (const path of paths) {
                     const fileResponse = await fetch(path);
