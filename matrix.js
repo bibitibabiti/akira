@@ -25,7 +25,13 @@
         }
 
         function draw() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+            const styles = getComputedStyle(document.body);
+            const fade = styles.getPropertyValue('--matrix-fade').trim() || 'rgba(0,0,0,0.08)';
+            const headColor = styles.getPropertyValue('--matrix-head').trim() || '#ffffff';
+            const tail1 = styles.getPropertyValue('--matrix-tail1').trim() || '#1013ba';
+            const tail2 = styles.getPropertyValue('--matrix-tail2').trim() || '#1f38dd';
+
+            ctx.fillStyle = fade;
             ctx.fillRect(0, 0, width, height);
             ctx.font = `${fontSize}px monospace`;
             ctx.textBaseline = 'top';
@@ -36,7 +42,9 @@
                 const text = charArray[Math.floor(Math.random() * charArray.length)];
                 const isHead = Math.random() > 0.985;
 
-                ctx.fillStyle = isHead ? '#ffffff' : (Math.random() > 0.75 ? '#1013ba' : '#1f38dd');
+                if (isHead) ctx.fillStyle = headColor;
+                else ctx.fillStyle = (Math.random() > 0.5 ? tail1 : tail2);
+
                 ctx.fillText(text, x, y);
 
                 if (y > height * 1.2 && Math.random() > 0.98) {

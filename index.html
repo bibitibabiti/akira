@@ -7,10 +7,14 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
+    
     <!-- Background Canvas -->
     <canvas id="matrix-canvas"></canvas>
 
+    <div id="loader-wrapper">
+        <img src="ouroboros.png" id="loader-logo" alt="Jormungandr" >
+        <p>Connecting...</p>
+    </div>
     <!-- Your Website Content Goes Here -->
 
     <div class="content-container">
@@ -18,17 +22,19 @@
             <div class="header-container">
                 <h1 class="glow-heading">Jormungandr</h1>
                 <img src="ouroboros.png" id="ouroboros-logo" alt="Jormungandr">
-                
             </div>
             <div class="subtitle">
                 <span class="typed-text typed-text delay">&gt;&gt; serpent node engaged</span>
                 <span class="typed-text delay">&gt;&gt; data stream: active</span>
             </div>
+            
             <div class="nav-line typed-text delay ">
                 <span class="nav-label terminal-link" :hover id="nav-label">>> opinions</span>
                 <span class="arrow" id="arrow-left" onclick="navigate(-1)">&lt;</span>
                 <span class="arrow" id="arrow-right" onclick="navigate(1)">&gt;</span>
+                <button id="theme-switcher" type="button" title="Switch theme" aria-label="Switch theme"> Matrix</button>
             </div>
+
             <div class="blog-post" id="opinions-panel">
                 <button class="return-link" id="return-home" type="button">&lt;&lt; return</button>
                 <p class="blog-meta">// loading posts...</p>
@@ -51,7 +57,8 @@
 
 
 
-        const toggle = document.getElementById('nav-label');;
+        const POST_DIR = 'posts/';
+        const toggle = document.getElementById('nav-label');
         const panel = document.getElementById('opinions-panel');
         const returnHome = document.getElementById('return-home');
 
@@ -103,33 +110,36 @@
             }
         }
 
+        function normalizePost(post) {
+            if (!post) return null;
+            return {
+                title: post.title || '',
+                paragraphs: Array.isArray(post.paragraphs)
+                    ? post.paragraphs
+                    : (Array.isArray(post.content) ? post.content : [post.content]).filter(Boolean)
+            };
+        }
+
         async function loadPosts() {
-            const posts = [];
-
             try {
-                const response = await fetch('posts/');
-                const text = await response.text();
-                const matches = [...text.matchAll(/href="([^"]+\.txt)"/g)];
-                const paths = matches.map((match) => match[1]).filter((path) => path !== 'posts/');
-
-                for (const path of paths) {
-                    const fileResponse = await fetch(path);
-                    if (!fileResponse.ok) continue;
-                    const fileText = await fileResponse.text();
-                    posts.push(parsePost(fileText, path.split('/').pop().replace(/\.txt$/, '')));
+                const response = await fetch('posts/posts.json');
+                if (response.ok) {
+                    const posts = await response.json();
+                    if (Array.isArray(posts) && posts.length) {
+                        renderPosts(posts.map(normalizePost).filter(Boolean));
+                        return;
+                    }
                 }
             } catch (error) {
-                // Fall back to the local manifest when the browser cannot list the folder.
+                // Fall back to the local manifest when the JSON file is unavailable.
             }
 
-            if (!posts.length && window.POSTS_FALLBACK) {
-                posts.push(...window.POSTS_FALLBACK.map((post) => ({
-                    title: post.title,
-                    paragraphs: Array.isArray(post.paragraphs) ? post.paragraphs : [post.content]
-                })));
+            if (window.POSTS_FALLBACK) {
+                renderPosts(window.POSTS_FALLBACK.map(normalizePost).filter(Boolean));
+                return;
             }
 
-            renderPosts(posts);
+            renderPosts([]);
         }
 
         loadPosts();
@@ -151,7 +161,54 @@
         returnHome.addEventListener('click', () => {
             setPostsView(false);
         });
+      const minStorageTime = new Promise(resolve => setTimeout(resolve, 1000));
+      const pageLoaded = new Promise(resolve => {
+            if (document.readyState === 'complete') {
+                resolve();
+            } else {
+                  window.addEventListener('load', resolve);
+        }
+     });
+     Promise.all([minStorageTime, pageLoaded]).then(() => {
+          const loader = document.getElementById('loader-wrapper');
+          loader.classList.add('fade-out');
+     });
 
+    // Theme switching: cycle through Matrix / Akira / Blade Runner
+    (function(){
+        const THEMES = ['matrix','akira','blade'];
+        const META = {
+            matrix: { emoji: '', name: 'Matrix' },
+            akira: { emoji: '', name: 'Akira' },
+            blade: { emoji: '', name: 'Blade Runner' }
+        };
+
+        function applyTheme(key){
+            document.body.classList.remove('theme-matrix','theme-akira','theme-blade');
+            document.body.classList.add('theme-' + key);
+            try{ localStorage.setItem('site-theme', key); }catch(e){}
+            const btn = document.getElementById('theme-switcher');
+            if(btn) btn.textContent = META[key].emoji + ' ' + META[key].name;
+        }
+
+        function cycleTheme(){
+            const current = localStorage.getItem('site-theme') || THEMES[0];
+            const idx = THEMES.indexOf(current);
+            const next = THEMES[(idx + 1) % THEMES.length];
+            applyTheme(next);
+        }
+
+        // Attach handler
+        const switcher = document.getElementById('theme-switcher');
+        if(switcher){
+            switcher.addEventListener('click', (e)=>{ e.preventDefault(); cycleTheme(); });
+        }
+
+        // Initialize from storage or default
+        const saved = localStorage.getItem('site-theme');
+        if(saved && THEMES.includes(saved)) applyTheme(saved);
+        else applyTheme(THEMES[0]);
+    })();
     </script>
 </body>
 </html>

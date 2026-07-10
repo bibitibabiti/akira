@@ -117,7 +117,7 @@ body::after {
     background: var(--panel);
     backdrop-filter: blur(16px);
     box-shadow: inset 0 0 40px rgba(77, 216, 193, 0.06), 0 0 40px rgba(77, 216, 193, 0.1);
-    border-radius: 26px;
+
     text-shadow: 0 0 14px rgba(2, 8, 12, 0.85);
 }
 
@@ -126,13 +126,13 @@ body::after {
     padding: 2.2rem;
     background: rgba(3, 22, 28, 0.22);
     backdrop-filter: blur(14px);
-    border-radius: 24px;
+
     box-shadow: inset 0 0 36px rgba(77, 216, 193, 0.06), 0 0 24px rgba(77, 216, 193, 0.08);
 }
 
 .glow-heading {
     margin: 0 0 1rem;
-    font-size: clamp(1.5rem, 4vw, 3.2rem);
+    font-size: clamp(1.5rem, 4vw, 2.8rem);
     color: var(--accent-soft);
     text-shadow: 0 0 18px rgba(166, 249, 255, 0.3), 0 0 54px rgba(38, 220, 226, 0.2);
     letter-spacing: 0.18em;
@@ -266,22 +266,19 @@ body::after {
 .header-container {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 16px;
   margin-bottom: 16px;
-  max-width: 100%
+  width: 100%;
+  max-width: 100%;
 }
 
 
 #ouroboros-logo {
-  width: clamp(40px, 6vw, 90px); /* scales with viewport instead of fixed 90px */
-  height: clamp(40px, 6vw, 90px);
-  flex-shrink: 0; /* prevents it from squishing */
+  width: clamp(40px, 6vw, 70px);
+  height: clamp(40px, 6vw, 70px);
+  flex-shrink: 0;
   animation: rotate 12s linear infinite;
-  filter: 
-    brightness(0) 
-    invert(1)
-    drop-shadow(0 0 8px #081cc8)
-    drop-shadow(0 0 20px #104bc9);
+    filter: brightness(0) invert(1) drop-shadow(0 0 8px var(--logo-glow, #081cc8)) drop-shadow(0 0 20px var(--logo-glow-2, #104bc9));
 }
 
 @keyframes rotate {
@@ -289,6 +286,48 @@ body::after {
   to { transform: rotate(0deg); }
 }
 
+
+#loader-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: #151515; /* Hintergrundfarbe des Ladebildschirms */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Stellt sicher, dass der Loader ganz oben liegt */
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3498db; /* Farbe des rotierenden Elements */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+#loader-logo{
+    width: clamp(60px, 8vw, 2000px);
+    height: clamp(60px, 8vw, 2000px);
+    flex-shrink: 0;
+    animation: rotate 12s linear infinite;
+    filter: brightness(0) invert(1) drop-shadow(0 0 8px var(--logo-glow, #081cc8)) drop-shadow(0 0 20px var(--logo-glow-2, #104bc9));
+ }
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#loader-wrapper.fade-out {
+    opacity: 0;
+    visibility: hidden;
+}
 
 
 
@@ -379,4 +418,92 @@ p {
     margin: 0;
     font-size: 1rem;
     color: var(--text);
+}
+
+/* Theme classes: Matrix, Akira, Blade Runner */
+.theme-matrix {
+    --bg: #050505;
+    --bg-2: #0D2611;
+    --panel: rgba(13,38,17,0.8);
+    --text: #FFFFFF;
+    --muted: #008F11;
+    --accent: #008F11;
+    --accent-2: #00FF41;
+    --accent-soft: #00FF41;
+    --line: rgba(0,255,65,0.12);
+    --cyan: #00FF41;
+    --green: #00FF41;
+    --matrix-fade: rgba(5,5,5,0.06);
+    --matrix-head: #00FF41;
+    --matrix-tail1: #008F11;
+    --matrix-tail2: #006400;
+    --logo-glow: #00FF41;
+    --logo-glow-2: #008F11;
+}
+
+.theme-akira {
+    --bg: #0B0B0C;
+    --bg-2: #1C1E24;
+    --panel: rgba(28,30,36,0.85);
+    --text: #E6E8EA;
+    --muted: #d30f0f;
+    --accent: #E2001A;
+    --accent-2: #FF6B00;
+    --accent-soft: #E6E8EA;
+    --line: rgba(226,0,26,0.12);
+    --cyan: #FF6B00;
+    --green: #E2001A;
+    --matrix-fade: rgba(11,11,12,0.08);
+    --matrix-head: #E2001A;
+    --matrix-tail1: #FF6B00;
+    --matrix-tail2: #B33A00;
+    --logo-glow: #E2001A;
+    --logo-glow-2: #FF6B00;
+}
+
+.theme-blade {
+    --bg: #080C14;
+    --bg-2: #004E64;
+    --panel: rgba(0,78,100,0.18);
+    --text: #D8F3DC;
+    --muted: #CA6702;
+    --accent: #FF007F;
+    --accent-2: #CA6702;
+    --accent-soft: #D8F3DC;
+    --line: rgba(255,0,127,0.08);
+    --cyan: #00FFFF;
+    --green: #FF007F;
+    --matrix-fade: rgba(8,12,20,0.06);
+    --matrix-head: #FF007F;
+    --matrix-tail1: #CA6702;
+    --matrix-tail2: #00FFFF;
+    --logo-glow: #FF007F;
+    --logo-glow-2: #00FFFF;
+}
+
+/* Theme switcher button in the header */
+#theme-switcher {
+    margin-left: auto;
+    padding: 0.35rem 0.6rem;
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+
+    border: 1px solid rgba(255,255,255,0.06);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));
+    color: var(--text);
+    cursor: pointer;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.95rem;
+}
+
+#theme-switcher:hover {
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45), 0 0 8px rgba(0,0,0,0.25) inset;
+    transform: translateY(-1px);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not(.theme-matrix):not(.theme-akira):not(.theme-blade) {
+        /* fall back to matrix look if no theme class present */
+    }
 }

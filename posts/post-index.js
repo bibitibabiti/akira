@@ -12,7 +12,15 @@ window.POSTS_FALLBACK = [
     paragraphs: [
       'As the United States loses more of its monopoly on global power, Western Media often portrays this as a change for the worse, painting the United States as a far better option as supposed to China taking the role of being the Dominant Global Superpower.',
       'But is that actually the case?',
-      'Would China really be a worse option for most of the globe?'
+      'Would China really be a worse option for most of the globe? ',
+      
     ]
-  }
+  },
+  {
+    title: "How to waste your youth",
+    paragraphs: [
+      "I often have a feeling that I’m wasting my youth.",
+
+    ]
+  },
 ];
