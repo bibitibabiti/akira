@@ -83,28 +83,24 @@
             }
         }
 
-async function loadPosts() {
-  try {
-    const response = await fetch('posts/posts.json');
-
-    if (!response.ok) {
-      throw new Error('Could not load articles');
-    }
-
-    const posts = await response.json();
-
-    posts.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    renderPosts(posts.map(post => ({
-      title: post.title,
-      paragraphs: post.content
-        .split(/\n\s*\n/)
-        .filter(Boolean)
-    })));
-  } catch (error) {
-    console.error('Failed to load articles:', error);
-  }
-}
+         async function loadPosts() {
+              try {
+                 const response = await fetch('posts/posts.json');
+                 if (!response.ok) {
+                    throw new Error('Could not load articles');
+              }
+                const posts = await response.json();
+                posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+                renderPosts(posts.map(post => ({
+                    title: post.title,
+                    paragraphs: post.content
+                    .split(/\n\s*\n/)
+                    .filter(Boolean)
+                })));
+              } catch (error) {
+                 console.error('Failed to load articles:', error);
+              }
+              }
         function setPostsView(isOpen) {
             panel.classList.toggle('active', isOpen);
             document.body.classList.toggle('posts-open', isOpen);
@@ -120,8 +116,8 @@ async function loadPosts() {
         returnHome.addEventListener('click', () => {
             setPostsView(false);
         });
+        
         loadPosts();
-
     </script>
 </body>
 </html>
