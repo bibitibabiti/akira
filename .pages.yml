@@ -1,0 +1,22 @@
+
+media: media
+
+content:
+  - name: posts
+    label: Blog Articles
+    type: file
+    path: posts/posts.json
+    format: json
+    list: true
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+      - name: date
+        label: Publication Date
+        type: date
+        required: true
+      - name: content
+        label: Article Content
+        type: rich-text
