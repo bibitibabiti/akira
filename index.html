@@ -83,37 +83,28 @@
             }
         }
 
-        async function loadPosts() {
-            const posts = [];
+async function loadPosts() {
+  try {
+    const response = await fetch('posts/posts.json');
 
-            try {
-                const response = await fetch('posts/');
-                const text = await response.text();
-                const matches = [...text.matchAll(/href="([^"]+\.txt)"/g)];
-                const paths = matches.map((match) => match[1]).filter((path) => path !== 'posts/');
+    if (!response.ok) {
+      throw new Error('Could not load articles');
+    }
 
-                for (const path of paths) {
-                    const fileResponse = await fetch(path);
-                    if (!fileResponse.ok) continue;
-                    const fileText = await fileResponse.text();
-                    posts.push(parsePost(fileText, path.split('/').pop().replace(/\.txt$/, '')));
-                }
-            } catch (error) {
-                // Fall back to the local manifest when the browser cannot list the folder.
-            }
+    const posts = await response.json();
 
-            if (!posts.length && window.POSTS_FALLBACK) {
-                posts.push(...window.POSTS_FALLBACK.map((post) => ({
-                    title: post.title,
-                    paragraphs: Array.isArray(post.paragraphs) ? post.paragraphs : [post.content]
-                })));
-            }
+    posts.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            renderPosts(posts);
-        }
-
-        loadPosts();
-
+    renderPosts(posts.map(post => ({
+      title: post.title,
+      paragraphs: post.content
+        .split(/\n\s*\n/)
+        .filter(Boolean)
+    })));
+  } catch (error) {
+    console.error('Failed to load articles:', error);
+  }
+}
         function setPostsView(isOpen) {
             panel.classList.toggle('active', isOpen);
             document.body.classList.toggle('posts-open', isOpen);
