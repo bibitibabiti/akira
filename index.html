@@ -98,7 +98,47 @@
                     .filter(Boolean)
                 })));
               } catch (error) {
-                 console.error('Failed to load articles:', error);
+                 
+async function loadPosts() {
+    try {
+        const response = await fetch('./posts/posts.json');
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.url}`);
+        }
+
+        const posts = await response.json();
+
+        if (!Array.isArray(posts)) {
+            throw new Error('The JSON file must contain an array of posts.');
+        }
+
+        posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        renderPosts(posts.map(post => ({
+            title: post.title || 'Untitled',
+            paragraphs: (post.content || '')
+                .split(/\n\s*\n/)
+                .filter(Boolean)
+        })));
+
+    } catch (error) {
+        console.error('Failed to load posts:', error);
+
+        panel.innerHTML = `
+            <button class="return-link" id="return-home-inline" type="button">
+                &lt;&lt; return
+            </button>
+            <p class="blog-meta">
+                // ERROR LOADING POSTS: ${error.message}
+            </p>
+        `;
+
+        document.getElementById('return-home-inline')
+            .addEventListener('click', () => setPostsView(false));
+    }
+}
+
               }
               }
         function setPostsView(isOpen) {
