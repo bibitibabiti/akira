@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,156 +9,200 @@
 </head>
 <body>
 
-    <!-- Background Canvas -->
+    <!-- Matrix Background -->
     <canvas id="matrix-canvas"></canvas>
 
-    <!-- Your Website Content Goes Here -->
-
+    <!-- Main Website Content -->
     <div class="content-container">
         <div class="terminal-shell">
+
             <h1 class="glow-heading">Jormungandr</h1>
+
             <div class="subtitle">
-                <span class="typed-text">&gt;&gt; serpent node engaged</span>
-                <span class="typed-text delay">&gt;&gt; data stream: active</span>
-                <button class="terminal-link typed-text delay" id="opinions-toggle" type="button">&gt;&gt; opinions</button>
+                <span class="typed-text">
+                    &gt;&gt; serpent node engaged
+                </span>
+
+                <span class="typed-text delay">
+                    &gt;&gt; data stream: active
+                </span>
+
+                <button
+                    class="terminal-link typed-text delay"
+                    id="opinions-toggle"
+                    type="button">
+                    &gt;&gt; opinions
+                </button>
             </div>
+
+            <!-- Blog Article Panel -->
             <div class="blog-post" id="opinions-panel">
-                <button class="return-link" id="return-home" type="button">&lt;&lt; return</button>
                 <p class="blog-meta">// loading posts...</p>
             </div>
+
         </div>
     </div>
-    <!-- Matrix Animation Script -->
+
+    <!-- Matrix Animation -->
     <script src="matrix.js"></script>
-    <script src="posts/post-index.js"></script>
+
     <script>
         const toggle = document.getElementById('opinions-toggle');
         const panel = document.getElementById('opinions-panel');
-        const returnHome = document.getElementById('return-home');
 
-        function parsePost(text, fallbackTitle) {
-            const raw = text.trim();
-            const lines = raw.replace(/\r\n/g, '\n').split('\n');
-            let title = fallbackTitle || '';
-            let contentLines = lines;
-
-            if (contentLines[0] && contentLines[0].startsWith('# ')) {
-                title = contentLines[0].replace(/^#\s*/, '').trim();
-                contentLines = contentLines.slice(1);
-            }
-
-            const paragraphs = contentLines
-                .join('\n')
-                .split(/\n\s*\n/)
-                .map((block) => block.trim())
-                .filter(Boolean);
-
-            return { title, paragraphs };
-        }
-
-        function renderPosts(posts) {
-            if (!posts.length) {
-                panel.innerHTML = '<p class="blog-meta">// no posts linked yet</p>';
-                return;
-            }
-
-            panel.innerHTML = `
-                <button class="return-link" id="return-home-inline" type="button">&lt;&lt; back to title</button>
-                ${posts.map((post, index) => {
-                    const body = post.paragraphs.map((paragraph) => `<p>${paragraph.replace(/\n/g, '<br>')}</p>`).join('');
-                    return `
-                        <article class="post-entry">
-                            <p class="blog-meta">// post ${index + 1}</p>
-                            <h2>${post.title}</h2>
-                            <div class="post-body">${body}</div>
-                        </article>
-                    `;
-                }).join('')}
-            `;
-
-            const inlineReturn = document.getElementById('return-home-inline');
-            if (inlineReturn) {
-                inlineReturn.addEventListener('click', () => {
-                    setPostsView(false);
-                });
-            }
-        }
-
-         async function loadPosts() {
-              try {
-                 const response = await fetch('posts/posts.json');
-                 if (!response.ok) {
-                    throw new Error('Could not load articles');
-              }
-                const posts = await response.json();
-                posts.sort((a, b) => new Date(b.date) - new Date(a.date));
-                renderPosts(posts.map(post => ({
-                    title: post.title,
-                    paragraphs: post.content
-                    .split(/\n\s*\n/)
-                    .filter(Boolean)
-                })));
-              } catch (error) {
-                 
-async function loadPosts() {
-    try {
-        const response = await fetch('./posts/posts.json');
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.url}`);
-        }
-
-        const posts = await response.json();
-
-        if (!Array.isArray(posts)) {
-            throw new Error('The JSON file must contain an array of posts.');
-        }
-
-        posts.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        renderPosts(posts.map(post => ({
-            title: post.title || 'Untitled',
-            paragraphs: (post.content || '')
-                .split(/\n\s*\n/)
-                .filter(Boolean)
-        })));
-
-    } catch (error) {
-        console.error('Failed to load posts:', error);
-
-        panel.innerHTML = `
-            <button class="return-link" id="return-home-inline" type="button">
-                &lt;&lt; return
-            </button>
-            <p class="blog-meta">
-                // ERROR LOADING POSTS: ${error.message}
-            </p>
-        `;
-
-        document.getElementById('return-home-inline')
-            .addEventListener('click', () => setPostsView(false));
-    }
-}
-
-              }
-              }
+        // Show or hide the blog panel
         function setPostsView(isOpen) {
             panel.classList.toggle('active', isOpen);
             document.body.classList.toggle('posts-open', isOpen);
-            toggle.textContent = isOpen ? '>> opinions: expanded' : '>> opinions';
-            returnHome.style.display = isOpen ? 'inline-flex' : 'none';
+
+            toggle.textContent = isOpen
+                ? '>> opinions: expanded'
+                : '>> opinions';
         }
 
+        // Create a return button
+        function createReturnButton() {
+            const button = document.createElement('button');
+
+            button.className = 'return-link';
+            button.type = 'button';
+            button.textContent = '<< return';
+
+            button.addEventListener('click', () => {
+                setPostsView(false);
+            });
+
+            return button;
+        }
+
+        // Render articles on the website
+        function renderPosts(posts) {
+            panel.replaceChildren();
+
+            // Return button
+            panel.appendChild(createReturnButton());
+
+            if (!posts.length) {
+                const message = document.createElement('p');
+                message.className = 'blog-meta';
+                message.textContent = '// no posts found';
+
+                panel.appendChild(message);
+                return;
+            }
+
+            posts.forEach((post, index) => {
+                const article = document.createElement('article');
+                article.className = 'post-entry';
+
+                // Post number
+                const meta = document.createElement('p');
+                meta.className = 'blog-meta';
+                meta.textContent = `// post ${index + 1}`;
+
+                // Article title
+                const heading = document.createElement('h2');
+                heading.textContent = post.title || 'Untitled';
+
+                // Article content
+                const body = document.createElement('div');
+                body.className = 'post-body';
+
+                const content = String(post.content || '')
+                    .replace(/\r\n?/g, '\n');
+
+                const paragraphs = content
+                    .split(/\n\s*\n/)
+                    .map(text => text.trim())
+                    .filter(Boolean);
+
+                paragraphs.forEach(text => {
+                    const paragraph = document.createElement('p');
+
+                    const lines = text.split('\n');
+
+                    lines.forEach((line, lineIndex) => {
+                        if (lineIndex > 0) {
+                            paragraph.appendChild(
+                                document.createElement('br')
+                            );
+                        }
+
+                        paragraph.appendChild(
+                            document.createTextNode(line)
+                        );
+                    });
+
+                    body.appendChild(paragraph);
+                });
+
+                // Assemble article
+                article.appendChild(meta);
+                article.appendChild(heading);
+                article.appendChild(body);
+
+                panel.appendChild(article);
+            });
+        }
+
+        // Load articles from the GitHub Pages JSON file
+        async function loadPosts() {
+            try {
+                const response = await fetch(
+                    './posts/posts.json',
+                    { cache: 'no-store' }
+                );
+
+                if (!response.ok) {
+                    throw new Error(
+                        `HTTP ${response.status}: ${response.statusText}`
+                    );
+                }
+
+                const posts = await response.json();
+
+                if (!Array.isArray(posts)) {
+                    throw new Error(
+                        'Invalid article data: expected an array.'
+                    );
+                }
+
+                // Sort newest articles first
+                posts.sort((a, b) => {
+                    const dateA = Date.parse(a.date || '') || 0;
+                    const dateB = Date.parse(b.date || '') || 0;
+
+                    return dateB - dateA;
+                });
+
+                renderPosts(posts);
+
+            } catch (error) {
+                console.error('Failed to load posts:', error);
+
+                panel.replaceChildren();
+
+                panel.appendChild(createReturnButton());
+
+                const message = document.createElement('p');
+                message.className = 'blog-meta';
+                message.textContent =
+                    `// ERROR LOADING POSTS: ${error.message}`;
+
+                panel.appendChild(message);
+            }
+        }
+
+        // Open and close the blog
         toggle.addEventListener('click', () => {
             const isOpen = !panel.classList.contains('active');
             setPostsView(isOpen);
         });
 
-        returnHome.addEventListener('click', () => {
-            setPostsView(false);
-        });
-        
+        // Load articles when the website starts
         loadPosts();
+
     </script>
+
 </body>
 </html>
